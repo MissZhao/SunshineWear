@@ -88,6 +88,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
         boolean mRegisteredTimeZoneReceiver = false;
         Paint mBackgroundPaint;
         Paint mTextPaint;
+        Paint mDatePaint;
+        Paint mTempPaint;
         boolean mAmbient;
         Time mTime;
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
@@ -101,6 +103,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         float mXOffset;
         float mYOffset;
+        float mYdateOffset;
 
         /**
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
@@ -119,14 +122,18 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     .setAcceptsTapEvents(true)
                     .build());
             Resources resources = MyWatchFace.this.getResources();
-            mYOffset = resources.getDimension(R.dimen.digital_y_offset);
+            mYOffset = resources.getDimension(R.dimen.digital_y_time_offset);
+            mYdateOffset =resources.getDimensionPixelOffset(R.dimen.digital_y_date_offset);
 
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(resources.getColor(R.color.background));
 
             mTextPaint = new Paint();
             mTextPaint = createTextPaint(resources.getColor(R.color.digital_text));
-
+            mDatePaint = new Paint();
+            mDatePaint =createTextPaint(resources.getColor(R.color.digital_text));
+            mTempPaint =new Paint();
+            mTextPaint = createTextPaint(resources.getColor(R.color.digital_text));
             mTime = new Time();
         }
 
@@ -179,6 +186,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mRegisteredTimeZoneReceiver = false;
             MyWatchFace.this.unregisterReceiver(mTimeZoneReceiver);
         }
+
 
         @Override
         public void onApplyWindowInsets(WindowInsets insets) {
@@ -262,6 +270,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     ? String.format("%d:%02d", mTime.hour, mTime.minute)
                     : String.format("%d:%02d:%02d", mTime.hour, mTime.minute, mTime.second);
             canvas.drawText(text, mXOffset, mYOffset, mTextPaint);
+            float textSize= getResources().getDimension(R.dimen.digital_text_size_date);
+            mDatePaint.setTextSize(textSize);
+            String date= String.format("%s, %d %s %d",DayofWeek(mTime.weekDay),mTime.monthDay,DayofMonth(mTime.month),mTime.year);
+            canvas.drawText(date,mXOffset,mYdateOffset,mDatePaint);
         }
 
         /**
@@ -295,5 +307,39 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 mUpdateTimeHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, delayMs);
             }
         }
+    }
+
+    private String DayofMonth(int month) {
+        switch (month+1){
+            case 1: return "JAN";
+            case 2: return "FEB";
+            case 3: return "MAR";
+            case 4: return "APR";
+            case 5: return "MAY";
+            case 6: return "JUN";
+            case 7: return "JUL";
+            case 8: return  "AUG";
+            case 9: return "SEP";
+            case 10: return  "OCT";
+            case 11: return "NOV";
+            case 12: return  "DEC";
+
+        }
+
+        return "";
+
+    }
+
+    private String  DayofWeek(int weekDay) {
+        switch (weekDay){
+            case 1: return "MON";
+            case 2: return "TUE";
+            case 3: return "WED";
+            case 4: return "THUR";
+            case 5: return "FRI";
+            case 6: return "SAT";
+            case 7: return "SUN";
+        }
+        return "";
     }
 }

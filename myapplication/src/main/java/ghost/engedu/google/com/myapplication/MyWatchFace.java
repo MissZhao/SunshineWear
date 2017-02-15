@@ -103,7 +103,18 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         float mXOffset;
         float mYOffset;
+        float bottomDetail_Y_Offset;
+        float image_x_offset;
+        float highTempXOffset;
+        float lowTempXOffset;
+        float mXDateOffset;
         float mYdateOffset;
+        float XdividerSOffset;
+        float YdividerSOffset;
+        float XdividerEOffset;
+        float YdividerEOffset;
+        float lowTemp;
+        float highTemp;
 
         /**
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
@@ -133,7 +144,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mDatePaint = new Paint();
             mDatePaint =createTextPaint(resources.getColor(R.color.digital_text));
             mTempPaint =new Paint();
-            mTextPaint = createTextPaint(resources.getColor(R.color.digital_text));
+            mTempPaint = createTextPaint(resources.getColor(R.color.digital_text));
             mTime = new Time();
         }
 
@@ -194,11 +205,22 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             // Load resources that have alternate values for round watches.
             Resources resources = MyWatchFace.this.getResources();
+            lowTemp =16;
+            highTemp=25;
             boolean isRound = insets.isRound();
             mXOffset = resources.getDimension(isRound
                     ? R.dimen.digital_x_offset_round : R.dimen.digital_x_offset);
             float textSize = resources.getDimension(isRound
                     ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
+            XdividerSOffset=resources.getDimension(R.dimen.digital_x_divider);
+            YdividerSOffset=resources.getDimension(R.dimen.digital_y_divider);
+            YdividerEOffset=resources.getDimension(R.dimen.digital_y_divider);
+            XdividerEOffset=resources.getDimension(R.dimen.digital_x_end_divider);
+            bottomDetail_Y_Offset=resources.getDimension(R.dimen.bottom_y_offset);
+            image_x_offset=resources.getDimension(R.dimen.image_x_offset);
+            highTempXOffset=resources.getDimension(R.dimen.high_temp_offset);
+            lowTempXOffset=resources.getDimension(R.dimen.low_temp_offset);
+            mTempPaint.setTextSize(textSize);
 
             mTextPaint.setTextSize(textSize);
         }
@@ -272,8 +294,13 @@ public class MyWatchFace extends CanvasWatchFaceService {
             canvas.drawText(text, mXOffset, mYOffset, mTextPaint);
             float textSize= getResources().getDimension(R.dimen.digital_text_size_date);
             mDatePaint.setTextSize(textSize);
+            mXDateOffset= getResources().getDimension(R.dimen.digital_x_date_offset);
             String date= String.format("%s, %d %s %d",DayofWeek(mTime.weekDay),mTime.monthDay,DayofMonth(mTime.month),mTime.year);
-            canvas.drawText(date,mXOffset,mYdateOffset,mDatePaint);
+            canvas.drawText(date,mXDateOffset,mYdateOffset,mDatePaint);
+            canvas.drawLine(XdividerSOffset,YdividerSOffset,XdividerEOffset,YdividerEOffset,mDatePaint);
+            canvas.drawText((int)lowTemp + "\u00b0",lowTempXOffset,bottomDetail_Y_Offset,mTempPaint);
+            canvas.drawText((int)highTemp + "\u00b0",highTempXOffset,bottomDetail_Y_Offset,mTempPaint);
+
         }
 
         /**

@@ -29,11 +29,21 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Wearable;
 
 import java.lang.ref.WeakReference;
 import java.util.TimeZone;
@@ -83,7 +93,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
         }
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine {
+    private class Engine extends CanvasWatchFaceService.Engine implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener,DataApi.DataListener{
         final Handler mUpdateTimeHandler = new EngineHandler(this);
         boolean mRegisteredTimeZoneReceiver = false;
         Paint mBackgroundPaint;
@@ -92,6 +102,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
         Paint mTempPaint;
         boolean mAmbient;
         Time mTime;
+        GoogleApiClient mGoogleApiClient=new GoogleApiClient.Builder(MyWatchFace.this).addApi(Wearable.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -137,6 +148,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mYdateOffset =resources.getDimensionPixelOffset(R.dimen.digital_y_date_offset);
 
             mBackgroundPaint = new Paint();
+            mGoogleApiClient.connect();
             mBackgroundPaint.setColor(resources.getColor(R.color.background));
 
             mTextPaint = new Paint();
@@ -333,6 +345,37 @@ public class MyWatchFace extends CanvasWatchFaceService {
                         - (timeMs % INTERACTIVE_UPDATE_RATE_MS);
                 mUpdateTimeHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, delayMs);
             }
+        }
+
+        @Override
+        public void onDataChanged(DataEventBuffer dataEventBuffer) {
+            for(DataEvent event: dataEventBuffer){
+                if(event.getType() == DataEvent.TYPE_CHANGED){
+                    if(event.getDataItem().getUri().getPath().compareTo("/events")==0){
+                        DataMapItem dataItem = DataMapItem.fromDataItem (event.getDataItem());
+                        lowTemp=dataItem.getDataMap().getFloat("LowTemp");
+                        highTemp=dataItem.getDataMap().getFloat("HighTemp");
+                        invalidate();
+
+                    }
+                }
+            }
+
+        }
+
+        @Override
+        public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+        }
+
+        @Override
+        public void onConnected(@Nullable Bundle bundle) {
+            Wearable.DataApi.addListener(mGoogleApiClient, this);
+        }
+
+        @Override
+        public void onConnectionSuspended(int i) {
+
         }
     }
 

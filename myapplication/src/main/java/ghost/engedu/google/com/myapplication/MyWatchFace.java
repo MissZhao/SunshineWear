@@ -34,6 +34,7 @@ import android.support.annotation.Nullable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
@@ -349,6 +350,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onDataChanged(DataEventBuffer dataEventBuffer) {
+            Log.d("InWatch",dataEventBuffer.toString());
             for(DataEvent event: dataEventBuffer){
                 if(event.getType() == DataEvent.TYPE_CHANGED){
                     if(event.getDataItem().getUri().getPath().compareTo("/events")==0){
@@ -365,12 +367,14 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+            Log.e("ConnectionFailed",connectionResult.toString());
         }
 
         @Override
         public void onConnected(@Nullable Bundle bundle) {
             Wearable.DataApi.addListener(mGoogleApiClient, this);
+            Log.e("WearConnected",bundle.toString());
+
         }
 
         @Override

@@ -53,8 +53,8 @@ public class SunshineSyncIntentService extends IntentService implements GoogleAp
     protected void onHandleIntent(Intent intent) {
         SunshineSyncTask.syncWeather(this);
         PutDataMapRequest dataMap = PutDataMapRequest.create("/events");
-        dataMap.getDataMap().putFloat("LowTemp",15);
-        dataMap.getDataMap().putFloat("HighTemp",28);
+        dataMap.getDataMap().putFloat("LowTemp",SunshineSyncTask.low);
+        dataMap.getDataMap().putFloat("HighTemp",SunshineSyncTask.high);
       //  dataMap.getDataMap().putStringArray("events", eventStrings);
         PutDataRequest request = dataMap.asPutDataRequest();
         PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi

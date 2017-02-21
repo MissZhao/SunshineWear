@@ -38,7 +38,10 @@ public class SunshineSyncTask {
      *
      * @param context Used to access utility methods and the ContentResolver
      */
+    public static int low;
+    public static int high;
     synchronized public static void syncWeather(Context context) {
+
 
         try {
             /*
@@ -54,6 +57,8 @@ public class SunshineSyncTask {
             /* Parse the JSON into a list of weather values */
             ContentValues[] weatherValues = OpenWeatherJsonUtils
                     .getWeatherContentValuesFromJson(context, jsonWeatherResponse);
+            low= Integer.parseInt(weatherValues[0].get(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP).toString());
+            high =Integer.parseInt(weatherValues[0].get(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP).toString());
 
             /*
              * In cases where our JSON contained an error code, getWeatherContentValuesFromJson

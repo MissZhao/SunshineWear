@@ -38,11 +38,10 @@ public class SunshineSyncTask {
      *
      * @param context Used to access utility methods and the ContentResolver
      */
-    public static int low;
-    public static int high;
+    public static float low;
+    public static float high;
+    public static int w_id;
     synchronized public static void syncWeather(Context context) {
-
-
         try {
             /*
              * The getUrl method will return the URL that we need to get the forecast JSON for the
@@ -57,8 +56,10 @@ public class SunshineSyncTask {
             /* Parse the JSON into a list of weather values */
             ContentValues[] weatherValues = OpenWeatherJsonUtils
                     .getWeatherContentValuesFromJson(context, jsonWeatherResponse);
-            low= Integer.parseInt(weatherValues[0].get(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP).toString());
-            high =Integer.parseInt(weatherValues[0].get(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP).toString());
+            w_id = Integer.parseInt(weatherValues[0].get(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID).toString());
+            low= Float.parseFloat(weatherValues[0].get(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP).toString());
+            high =Float.parseFloat(weatherValues[0].get(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP).toString());
+
 
             /*
              * In cases where our JSON contained an error code, getWeatherContentValuesFromJson
